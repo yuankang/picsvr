@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Gallery</h1>
+        <div class="gallery">
+        {{if .}}
+            {{range .}}
+                <div class="image-item">
+                    <img src="{{.Filename}}" alt="{{.Description}}" width="300">
+                    <p>{{.Filename}}</p>
+                </div>
+            {{end}}
+        {{else}}
+            <p>No images uploaded yet.</p>
+        {{end}}
+        </div>
+        <a href="/upload">Go to Upload Page</a>
+    </div>
+</body>
+</html>

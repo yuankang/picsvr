@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Upload Image and Description</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="image">Select image:</label>
+        <input type="file" name="images" id="images" multiple required><br><br>
+        <label for="description">Description:</label>
+        <input type="text" name="description" id="description" required><br><br>
+        <input type="submit" value="Upload">
+    </form>
+
+    <h2>View Uploaded Images</h2>
+    <a href="/index.html">View All Images</a>
+</body>
+</html>
