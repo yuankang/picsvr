@@ -2,24 +2,33 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"text/template"
 	"path/filepath"
+	//"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var db *gorm.DB
 
 // 图片信息结构体
 type Image struct {
 	gorm.Model
 	Filename    string
 	Description string
+
+	PicName string
+	DespEn string //description
+	DespCn string
 }
 
 // 初始化数据库
-func initDB() (*gorm.DB, error) {
+func InitDB() (*gorm.DB, error) {
 	db, err := gorm.Open("sqlite3", "./pic.db")
 	if err != nil {
 		return nil, err
@@ -28,8 +37,86 @@ func initDB() (*gorm.DB, error) {
 	return db, nil
 }
 
+// 查看所有已上传的图片
+func HtmlIndex(w http.ResponseWriter, r *http.Request) {
+    // 查询所有图片记录
+    var images []Image
+    db.Find(&images)
+
+    // 读取并渲染 index.html 模板
+    tmpl, err := template.ParseFiles("html/index.html")
+    if err != nil {
+		fmt.Println(err)
+        http.Error(w, "Unable to parse template", http.StatusInternalServerError)
+        return
+    }
+	//fmt.Printf("%#v", images)
+
+    // 渲染模板，并传入图片数据
+    tmpl.Execute(w, images)
+}
+
+func HtmlShow0(w http.ResponseWriter, r *http.Request) {
+    // 查询所有图片记录
+    var images []Image
+    db.Find(&images)
+
+    // 读取并渲染 index.html 模板
+    tmpl, err := template.ParseFiles("html/show.html")
+    if err != nil {
+		fmt.Println(err)
+        http.Error(w, "Unable to parse template", http.StatusInternalServerError)
+        return
+    }
+	//fmt.Printf("%#v", images)
+
+    // 渲染模板，并传入图片数据
+    tmpl.Execute(w, images)
+}
+
+func HtmlShow(w http.ResponseWriter, r *http.Request) {
+    // 获取 URL 中的 filename 参数
+    filename := r.URL.Query().Get("filename")
+
+    if filename == "" {
+        http.Error(w, "Filename is required", http.StatusBadRequest)
+        return
+    }
+
+    // 如果需要去除相对路径的前缀如 ./pic/，可以使用 filepath.Clean
+    //filename = filepath.Clean(strings.TrimPrefix(filename, "./"))
+	log.Println(filename)
+
+    // 查询对应的图片记录
+    var image Image
+    result := db.Where("filename = ?", filename).First(&image)
+    if result.Error != nil {
+        http.Error(w, "Image not found", http.StatusNotFound)
+        return
+    }
+
+    // 读取并渲染 show.html 模板
+    tmpl, err := template.ParseFiles("html/show.html")
+    if err != nil {
+        fmt.Println(err)
+        http.Error(w, "Unable to parse template", http.StatusInternalServerError)
+        return
+    }
+
+    // 渲染模板并传入单个图片数据
+    err = tmpl.Execute(w, image)
+    if err != nil {
+        fmt.Println(err)
+        http.Error(w, "Unable to execute template", http.StatusInternalServerError)
+    }
+}
+
+func HtmlUpload(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "html/upload.html")
+}
+
 // 上传图片和说明
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
+func ApiUpload(w http.ResponseWriter, r *http.Request) {
 	// 解析表单
 	err := r.ParseMultipartForm(10 << 20) // 允许上传最大10MB的文件
 	if err != nil {
@@ -51,14 +138,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	// 记录图片信息到数据库
-	db, err := initDB()
-	if err != nil {
-		http.Error(w, "Unable to connect to the database", http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
 
 	for _, fileHeader := range files {
 		// 打开上传的文件
@@ -99,58 +178,42 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Image uploaded successfully")
 }
 
-// 查看所有已上传的图片
-func viewImagesHandler(w http.ResponseWriter, r *http.Request) {
+// 主函数，设置路由和启动服务器
+func main() {
     // 获取数据库连接
-    db, err := initDB()
+	var err error
+    db, err = InitDB()
     if err != nil {
-        http.Error(w, "Unable to connect to the database", http.StatusInternalServerError)
+		log.Println("InitDb() fail")
         return
     }
     defer db.Close()
 
-    // 查询所有图片记录
-    var images []Image
-    db.Find(&images)
-
-    // 读取并渲染 index.html 模板
-    tmpl, err := template.ParseFiles("html/index.html")
-    if err != nil {
-		fmt.Println(err)
-        http.Error(w, "Unable to parse template", http.StatusInternalServerError)
-        return
-    }
-	//fmt.Printf("%#v", images)
-
-    // 渲染模板，并传入图片数据
-    tmpl.Execute(w, images)
-}
-
-// 主函数，设置路由和启动服务器
-func main() {
 	r := mux.NewRouter()
 
 	// 提供静态文件服务，访问 ./pic/ 目录下的图片文件
 	r.PathPrefix("/pic/").Handler(http.StripPrefix("/pic/", http.FileServer(http.Dir("./pic"))))
-
-	// 提供静态文件服务，访问 ./css/ 目录下的 CSS 文件
+	// 提供静态文件服务，访问 ./css/ 目录下的css文件
 	r.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
-
-	// 上传图片和说明的页面
-	r.HandleFunc("/upload.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "html/upload.html")
-	}).Methods("GET")
-
-	// 上传图片和说明的处理页面
-	r.HandleFunc("/upload", uploadHandler).Methods("POST")
+	// 提供静态文件服务，访问 ./js/ 目录下的js文件
+	r.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("./js"))))
 
 	// 查看已上传图片的页面
-	r.HandleFunc("/index.html", viewImagesHandler).Methods("GET")
+	r.HandleFunc("/index.html", HtmlIndex).Methods("GET")
+
+	// 查看已上传图片的页面
+	//http://localhost:8080/show.html?filename=./pic/04037_outofthiswhirl_2880x1800.jpg
+	r.HandleFunc("/show.html", HtmlShow).Methods("GET")
+	
+	// 上传图片和说明的页面
+	r.HandleFunc("/upload.html", HtmlUpload).Methods("GET")
+	// 上传图片和说明的接口
+	r.HandleFunc("/upload", ApiUpload).Methods("POST")
 
 	// 启动服务器
 	http.Handle("/", r)
 
 	port := "8080"
-	fmt.Printf("start http server, http://localhost:%s", port)
+	log.Printf("start http server, http://localhost:%s", port)
 	http.ListenAndServe(":"+port, nil)
 }

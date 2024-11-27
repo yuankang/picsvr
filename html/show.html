@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Details</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // 从 URL 中获取文件名参数并显示图片信息
+        function loadImageDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const filename = urlParams.get('filename');
+
+            if (filename) {
+                document.getElementById('image').src = filename;
+                document.getElementById('filename').innerText = filename;
+                document.getElementById('description').innerText = 'Description of ' + filename;
+                document.getElementById('createdDate').innerText = 'Created Date: ' + new Date().toLocaleString(); // 模拟日期
+            } else {
+                document.getElementById('details').innerHTML = '<p>Image not found</p>';
+            }
+        }
+    </script>
+</head>
+<body onload="loadImageDetails()">
+    <div class="container">
+        <h1>Image Details</h1>
+        <div id="details">
+            <p><strong>英文描述:</strong> <span id="description"></span></p>
+            <p><strong>中文描述:</strong> <span id="createdDate"></span></p>
+            <p><strong>上传时间:</strong> <span id="createdDate"></span></p>
+            <img id="image" src="" alt="Image" style="max-width: 100%; border-radius: 8px;">
+        </div>
+        <a href="/index.html">Back to Gallery</a>
+    </div>
+</body>
+</html>

@@ -1,79 +1,156 @@
-/* 全局设置 */
+/* 全局样式 */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
     background-color: #f4f4f4;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 24px;
-    color: #333;
-}
-
-/* 图片列表样式 */
-.gallery {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 一行显示5个图片 */
-    gap: 20px; /* 图片之间的间距 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
     padding: 20px;
-    margin-top: 30px;
+    box-sizing: border-box;
 }
 
-.gallery .image-item {
-    background-color: #fff;
+/* 容器样式 */
+.container, form {
+    width: auto;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* 标题样式 */
+h1 {
+    margin-bottom: 20px;
     text-align: center;
-    padding: 10px;
-    transition: transform 0.3s ease-in-out;
-}
-
-.gallery .image-item:hover {
-    transform: scale(1.05);
-}
-
-.gallery img {
-    width: 100%;
-    height: auto;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.gallery img:hover {
-    transform: scale(1.1);
-}
-
-.gallery p {
-    margin-top: 10px;
     color: #333;
+}
+
+/* 表单和输入框样式 */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="file"],
+input[type="text"],
+input[type="submit"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* 图片画廊样式 */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start; /* 左对齐 */
+}
+
+/* 图片项样式 */
+.image-item {
+    flex: 1 1 calc(20% - 20px); /* 每行最多显示5张图片 */
+    max-width: calc(20% - 20px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-item img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.image-item p {
+    margin-top: 10px;
     font-size: 14px;
+    color: #555;
+    text-align: center;
 }
 
 /* 链接样式 */
 a {
+    display: inline-block;
+    margin-top: 20px;
     text-decoration: none;
-    color: #4CAF50;
+    color: #007bff;
     font-weight: bold;
 }
 
 a:hover {
-    color: #45a049;
-    text-decoration: underline;
+    color: #0056b3;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .gallery {
-        grid-template-columns: repeat(2, 1fr); /* 小屏幕显示2个图片 */
+/* 响应式布局 */
+@media (max-width: 1200px) {
+    .image-item {
+        flex: 1 1 calc(25% - 20px); /* 每行最多显示4张图片 */
     }
 }
 
-@media (max-width: 480px) {
-    .gallery {
-        grid-template-columns: 1fr; /* 极小屏幕显示1个图片 */
+@media (max-width: 900px) {
+    .image-item {
+        flex: 1 1 calc(33.33% - 20px); /* 每行最多显示3张图片 */
     }
+}
+
+@media (max-width: 600px) {
+    .image-item {
+        flex: 1 1 calc(50% - 20px); /* 每行最多显示2张图片 */
+    }
+}
+
+@media (max-width: 400px) {
+    .image-item {
+        flex: 1 1 calc(100% - 20px); /* 每行1张图片 */
+    }
+}
+
+/* 调整图片显示的样式 */
+#details {
+    text-align: left;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+#details img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+p {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+a {
+    display: block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    color: #0056b3;
 }

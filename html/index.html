@@ -13,7 +13,10 @@
         {{if .}}
             {{range .}}
                 <div class="image-item">
-                    <img src="{{.Filename}}" alt="{{.Description}}" width="300">
+                    <!-- 点击图片跳转到 show.html，并传递文件名作为参数 -->
+                    <a href="/show.html?filename={{.Filename}}">
+                        <img src="{{.Filename}}" alt="{{.Description}}">
+                    </a>
                     <p>{{.Filename}}</p>
                 </div>
             {{end}}
