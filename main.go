@@ -56,24 +56,6 @@ func HtmlIndex(w http.ResponseWriter, r *http.Request) {
     tmpl.Execute(w, images)
 }
 
-func HtmlShow0(w http.ResponseWriter, r *http.Request) {
-    // 查询所有图片记录
-    var images []Image
-    db.Find(&images)
-
-    // 读取并渲染 index.html 模板
-    tmpl, err := template.ParseFiles("html/show.html")
-    if err != nil {
-		fmt.Println(err)
-        http.Error(w, "Unable to parse template", http.StatusInternalServerError)
-        return
-    }
-	//fmt.Printf("%#v", images)
-
-    // 渲染模板，并传入图片数据
-    tmpl.Execute(w, images)
-}
-
 func HtmlShow(w http.ResponseWriter, r *http.Request) {
     // 获取 URL 中的 filename 参数
     filename := r.URL.Query().Get("filename")
